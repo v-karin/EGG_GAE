@@ -32,7 +32,10 @@ class Network(nn.Module):
         self.define_losses()
     
         # Metrics
-        self.MetricCalculator = MetricCalculator(num_classes=self.cfg.outsize, device=f"cuda:{self.cfgTrainer.cuda_number}")
+        self.MetricCalculator = MetricCalculator(
+            num_classes=self.cfg.outsize,
+            device=f"cuda:{self.cfgTrainer.cuda_number}" if self.cfgTrainer.accelerator == "gpu" else "cpu"
+        )
     
         self.init_emb()
         self.init_proto()
@@ -40,8 +43,11 @@ class Network(nn.Module):
     
     def init_emb(self,):
         
-        self.CatEmb = [torch.nn.Embedding(dim+1, self.cfgDataloader.imputation.cat_emb_dim).to(device=f"cuda:{self.cfgTrainer.cuda_number}")\
-                    for dim in self.cfgDataloader.imputation.cat_dims]
+        self.CatEmb = [
+            torch.nn.Embedding(
+                dim+1, self.cfgDataloader.imputation.cat_emb_dim
+            )#.to(device=f"cuda:{self.cfgTrainer.cuda_number}")
+            for dim in self.cfgDataloader.imputation.cat_dims]
         demoninator = len(self.cfgDataloader.imputation.cat_idx) + len(self.cfgDataloader.imputation.num_idx)
         self.num_reg = len(self.cfgDataloader.imputation.num_idx) / demoninator
         

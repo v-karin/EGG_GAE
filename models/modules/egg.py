@@ -13,27 +13,27 @@ class EGG_module(nn.Module):
         super(EGG_module, self).__init__()
         args['in_feat'] = in_feat
         self.edge_gen = EdgeGenerationModule(**args)
-        GCNEG_head = {  "GCNConv": GCNConv,
-                        "EdgeConv": EdgeConv,
-                        "GATConv": GATConv,
-                        "ARMAConv":ARMAConv,
-                        "SGConv":SGConv,
-                        }
+        GCNEG_head = {
+            "GCNConv": GCNConv,
+            "EdgeConv": EdgeConv,
+            "GATConv": GATConv,
+            "ARMAConv": ARMAConv,
+            "SGConv": SGConv}
                         
         #GCN_mapper = {'SimpleMapper':SimpleMapper}
         
         self.cfg = args['cfg'] # """Gets cfg.model"""
-        
-        if args['GCNEG_head_type'] == "GCNConv":
-            self.gcn = GCNEG_head.get(args['GCNEG_head_type'])(out_feat, out_feat, improved=True)
-        else: 
-            self.gcn = GCNEG_head.get(args['GCNEG_head_type'])(out_feat, out_feat) 
+        gcn_class = GCNEG_head.get(args["GCNEG_head_type"])
+        if args["GCNEG_head_type"] == "GCNConv":
+            self.gcn = gcn_class(out_feat, out_feat, improved=True)
+        else:
+            self.gcn = gcn_class(out_feat, out_feat)
         
         # self.mapper = GCN_mapper.get(args['GCNEG_mapper_type'])(in_feat, edge_out_feat, cfg=self.cfg)
-        self.mapper = Seq(Linear(in_feat, in_feat),
-                          ReLU(), 
-                          Linear(in_feat, in_feat)
-                        ) 
+        self.mapper = Seq(
+            Linear(in_feat, in_feat),
+            ReLU(),
+            Linear(in_feat, in_feat)) 
 
         self.norm=LayerNorm(out_feat)
         
@@ -42,7 +42,6 @@ class EGG_module(nn.Module):
         self.StatDict = {}
         mapped_x = self.mapper(x)
         edge_index, edge_weight = self.edge_gen(mapped_x)
-        
 
         # Apply gcn to proposed edges and initial x
         # x_gcn = self.gcn(self.norm(x), edge_index, edge_weight)

@@ -1,6 +1,6 @@
 import pytorch_lightning as pl
 from omegaconf.dictconfig import DictConfig
-from torch_geometric.data import LightningDataset
+from torch_geometric.data.lightning import LightningDataset
 from datasets.datasets import TrainImputeDataset, TestImputeDataset
 from datasets.upload_data import load_prepared_data
 

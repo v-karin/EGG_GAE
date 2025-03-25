@@ -18,9 +18,9 @@ class EGnet(nn.Module):
         super().__init__()
 
         dynamic_edge_type = {
-                            "EGG_module":EGG_module,
-                            "kEGG_GAE":kEGG_GAE
-                            }
+            "EGG_module":EGG_module,
+            "kEGG_GAE":kEGG_GAE
+        }
         
         self.cfg = cfg.model
         self.cfgDataloader = cfg.dataloader
@@ -94,19 +94,29 @@ class EGnet(nn.Module):
             modules.append( (nn.LeakyReLU()) )
             
         self.egg_modules = Sequential('x', OrderedDict(zip(names, modules)))
-        
+
         # Classification head
         self.head_norm = LayerNorm(self.cfg.in_channels[-1])
-        
         self.classification_head = torch.nn.Linear(self.cfg.in_channels[-1], self.cfg.outsize)
-        
+
         # Reconstruc numerical variables 
-        self.num_head = torch.nn.Linear(self.cfg.in_channels[-1], 
-                                        len(self.cfgDataloader.imputation.num_idx))
+        self.num_head = torch.nn.Linear(
+            self.cfg.in_channels[-1], 
+            len(self.cfgDataloader.imputation.num_idx)
+        )
+
         # Reconstruct cat variables
-        self.cat_heads = torch.nn.ModuleList([torch.nn.Linear(self.cfg.in_channels[-1], dim).to(f'cuda:{cfg.trainer.cuda_number}') \
-                            for dim in self.cfgDataloader.imputation.cat_dims])
-        
+        if cfg.trainer.accelerator == "gpu":
+            self.init_cat_heads(f"cuda:{cfg.trainer.cuda_number}")
+        else:
+            self.init_cat_heads("cpu")
+
+    def init_cat_heads(self, device=None):
+        self.cat_heads = torch.nn.ModuleList([
+            torch.nn.Linear(self.cfg.in_channels[-1], dim).to(device)
+            for dim in self.cfgDataloader.imputation.cat_dims
+        ])
+
 
     def forward(self, x):
         x = self.input_bn(x)

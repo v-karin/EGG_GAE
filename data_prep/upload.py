@@ -5,19 +5,20 @@ import os
 
 def path_to_data(project_name='EGG_GAE'):
     """Add project to the path"""
-    working_dir = os.getcwd().split('/')
+    working_dir = os.getcwd().split(os.path.sep)
     dir_path = None
     for i, folder_name in enumerate(working_dir):
         if project_name==folder_name:
-            dir_path = '/'.join(working_dir[:i+1])
-            
-    
+            dir_path = os.path.sep.join(working_dir[:i+1])
+
+    print(dir_path)
+
     if dir_path is None:
         raise ValueError('Path to data is not found!!')
     else: 
         return dir_path
-    
-    
+
+
 def loader(**kwargs):
     fixed_test = False
     X_test, y_test = [], []
@@ -27,9 +28,11 @@ def loader(**kwargs):
         fixed_test = True
         url_data = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
         url_data_test = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test'
-        
-        features = ['age', 'workclass', 'fnlwgt', 'education', 'education_num', 'marital-status', 'occupation',
-                    'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country']
+
+        features = [
+            'age', 'workclass', 'fnlwgt', 'education', 'education_num', 'marital-status', 'occupation',
+            'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country'
+        ]
         label = "income"
         columns = features + [label]
         df = pd.read_csv(url_data, names=columns)

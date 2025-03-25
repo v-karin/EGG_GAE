@@ -97,8 +97,8 @@ class ImputationBase(CustomDataset):
             self.mappers = []
             for dim in self.CatFillWith:
                 mapper = dict(zip(np.arange(dim), np.arange(dim)))
-                mapper[np.float(self.cfg.imputation.fill_val)] = dim.item()
-                mapper[np.float(dim.item())] = dim.item()
+                mapper[np.float64(self.cfg.imputation.fill_val)] = dim.item()
+                mapper[np.float64(dim.item())] = dim.item()
                 self.mappers.append(mapper)
 
         else:

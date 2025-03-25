@@ -31,7 +31,7 @@ class LitModel(pl.LightningModule):
         # Save pytorch lightning parameters   
         # - save configs + self.hparams=cfg
         self.save_hyperparameters(cfg)
-        pl.utilities.seed.seed_everything(self.hparams.seed_everything)
+        pl.seed_everything(self.hparams.seed_everything)
        
         # Get model from .yaml file
         self.cfg=cfg

@@ -17,20 +17,21 @@ from data_prep.pipeline import data_pipeline
 from utils import config_preprocess, get_dataloader
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
-def fxn():
-    warnings.warn("deprecated", DeprecationWarning)
 
-def setup_cuda(cfg: DictConfig):
+
+"""def setup_cuda(cfg: DictConfig):
 
     print("DEVICE COUNT: ",torch.cuda.device_count())
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   
     os.environ["CUDA_VISIBLE_DEVICES"] = cfg.trainer.cuda_number
     
-    print("DEVICE COUNT: ",torch.cuda.device_count())
+    print("DEVICE COUNT: ",torch.cuda.device_count())"""
+
+
 
 @hydra.main(config_path='./configs', config_name='defaults')
 def main(cfg: DictConfig):
-    setup_cuda(cfg)
+    #setup_cuda(cfg)
     print(OmegaConf.to_yaml(cfg))
     
     dataloader_cfg = cfg.dataloader
@@ -56,16 +57,19 @@ def main(cfg: DictConfig):
                   scale_type=scale_type
                   )
 
-    cfg.wadb.logger_name = f'{cfg.dataloader.dataset_name}_{cfg.model.edge_generation_type}_k(noSKIPCON)'
+    """cfg.wadb.logger_name = f'{cfg.dataloader.dataset_name}_{cfg.model.edge_generation_type}_k(noSKIPCON)'
     
     # # # Configure weight and biases 
-    if cfg.trainer.is_logger_enabled == True:
+    if cfg.trainer.is_logger_enabled:
         logger = pl_loggers.WandbLogger(
             project=cfg.wadb.logger_project_name,
             name=cfg.wadb.logger_name if cfg.wadb.logger_name != 'None' else None, 
             entity=cfg.wadb.entity,
             
             )
+    else:
+        logger = None"""
+    logger = False
 
     # --- Callbacks ---
     checkpoint_callback = ModelCheckpoint(
@@ -79,38 +83,47 @@ def main(cfg: DictConfig):
     )
     early_stopping = EarlyStopping(monitor="val_ens_aucroc", mode="max", min_delta=0.00, patience=3)
 
+
+
     # Setup dataloader and model
-    
     datamodule = get_dataloader(cfg)
 
     # Get additional statistics from dataset
     cfg = config_preprocess(cfg, datamodule)
 
-    callbacks = [ValCallback(num_classes=cfg.model.outsize, device='cuda:0'),
-                 TestCallback(num_classes=cfg.model.outsize, device='cuda:0'), 
-                 LearningRateMonitor("step"), checkpoint_callback, early_stopping]
+    if cfg.trainer.is_logger_enabled:
+        callbacks = [ValCallback(num_classes=cfg.model.outsize, device="cpu"), #device='cuda:0'),
+                    TestCallback(num_classes=cfg.model.outsize, device="cpu"), #device='cuda:0'), 
+                    LearningRateMonitor("step"), checkpoint_callback, early_stopping]
+    else:
+        callbacks = []
+
 
     # Configure trained
-    trainer = Trainer(gpus=1, accelerator='gpu', 
-        logger=logger if cfg.trainer.is_logger_enabled else False,
+    trainer = Trainer(
+        num_nodes=cfg.trainer.num_nodes,
+        accelerator=cfg.trainer.accelerator, #accelerator='gpu', 
+        logger=logger,
         num_sanity_val_steps=-1, 
         check_val_every_n_epoch=cfg.trainer.check_val_every_n_epoch,
         max_epochs=cfg.model.opt.max_epochs,
         log_every_n_steps=cfg.trainer.log_every_n_steps,
-        callbacks=callbacks if cfg.trainer.is_logger_enabled else [])
+        callbacks=callbacks)
 
-    
-    
     model = LitModel(datamodule=datamodule, cfg=cfg)
-    
+
+
+
     # Train
     trainer.fit(model, datamodule)
-
-    
     trainer.test(model=model, dataloaders=datamodule.test_dataloader(), ckpt_path="best")
-    
+
     print('Training is done!')
     
+
+
+def fxn():
+    warnings.warn("deprecated", DeprecationWarning)
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

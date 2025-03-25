@@ -4,8 +4,9 @@ defaults:
   - model: kegg_model    # Options: egg_model, kegg_model       
 
 trainer:
-  cuda_number: '0'
-  gpus: 1
+  accelerator: "cpu" #"gpu"
+  num_nodes: 1
+  #cuda_number: '0' # disable if no gpu else error
   is_logger_enabled: false
   check_val_every_n_epoch: 9
   log_every_n_steps: 25         

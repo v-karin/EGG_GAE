@@ -1,5 +1,7 @@
 # EdGe Generation-Graph AutoEncoder (EGG-GAE)
 
+(AMENDED REPO)
+
 ---
 
 [EGG-GAE: scalable graph neural networks for tabular data imputation](https://arxiv.org/abs/2210.10446)
@@ -9,22 +11,27 @@
 - [Run an experiment](#run_an_experiment)
 
 ## Setup environment
-This repo is tested with the following enviroment, higher version of torch PyG may also be compatible. 
+Higher versions of torch/pytorch_geometric may be compatible.
+This repo has been amended to run with the following environment below.
 
-First let's setup a conda enviroment
+Run the commands below, setting up a conda environment:
 
 ```
 conda create --name egg_exp --yes
 conda activate egg_exp
-conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia --yes
-pip install pytorch-lightning==1.9
-pip install torchfunc==0.2.0 
-pip install wandb==0.13.9
-conda install pyg -c pyg --yes
-conda install -c conda-forge graph-tool gudhi --yes
+pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0
+pip install pytorch-lightning==2.5.1
+pip install torch_geometric==2.6.1
+pip install pandas==2.2.3
+pip install scikit-learn==1.6.1
+
+pip install hydra-core==1.3.2
 conda install ipykernel ipywidgets networkx
-conda install -c conda-forge hydra-core==1.1.0
 ```
+
+~~#pip install wandb==0.13.9~~
+
+~~#conda install -c conda-forge graph-tool gudhi --yes~~
 
 ## Configs
 Please refer to the `configs/defaults.yaml` file for more details on the available configuration options.
@@ -47,20 +54,19 @@ In the `upload_data` function, it is necessary to add a dictionary with the para
 
 
 ## Logger
-Login to your `wandb` account, running once `wandb login`.
-Configure the logging in `conf/logging/*`.
+~~Login to your `wandb` account, running once `wandb login`.~~
+~~Configure the logging in `conf/logging/*`.~~
 
-Read more in the [docs](https://docs.wandb.ai/). Particularly useful the [`log` method](https://docs.wandb.ai/library/log), accessible from inside a PyTorch Lightning module with `self.logger.experiment.log`.
+~~Read more in the [docs](https://docs.wandb.ai/). Particularly useful the [`log` method](https://docs.wandb.ai/library/log),~~ accessible from inside a PyTorch Lightning module with `self.logger.experiment.log`.
 
-> W&B is our logger of choice, but that is a purely subjective decision. Since we are using Lightning, you can replace
-`wandb` with the logger you prefer (you can even build your own).
+> Since we are using Lightning, you can replace `wandb` with the logger you prefer (you can even build your own).
  More about Lightning loggers [here](https://pytorch-lightning.readthedocs.io/en/latest/extensions/logging.html).
 
 ## Additional Configs
 To understand the structure see [hydra](https://hydra.cc/docs/tutorials/basic/your_first_app/config_groups/).
 dataset.yaml and model.yaml consist of dataset_type and model_type keys respectively. Through keys values pl pipline is configured.
 
-Configure all parameters through .yaml file with integrated [wandb](https://docs.wandb.ai/)
+Configure all parameters through .yaml file.
 
 ## Repository structure
 ```
