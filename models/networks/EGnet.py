@@ -25,9 +25,8 @@ class EGnet(nn.Module):
         self.cfg = cfg.model
         self.cfgDataloader = cfg.dataloader
         self.module = dynamic_edge_type.get(self.cfg.edge_generation_type)
-        
-        if self.module is None:
-           raise Exception('self.module is None,')
+
+        assert self.module is not None, "self.module is None"
 
         # Build GCNnetwork
         # In size and out size depends on the dataset 
