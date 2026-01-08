@@ -29,7 +29,7 @@ class ValCallback(Callback):
         # Create cillector at the beggining of the validation epoch
         self.create_collector()
 
-    def on_validation_batch_end(self, trainer, pl_module, outputs, batch, batch_idx, dataloader_idx):
+    def on_validation_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
         val_loss, preds, probs, num_rec, cat_outputs = outputs 
 
         # After each epoch statistics of the batch inserted into stat_collector

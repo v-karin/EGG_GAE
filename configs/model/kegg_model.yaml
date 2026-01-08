@@ -10,8 +10,10 @@ prototypes:
   k: 10
 
 setup_dataset: True
+
+# SELECT ONLY ONE HYPERPARAMETER! IT DOES NOT ITERATE OVER THEM!
 GCNEG_head:
-  types: [EdgeConv, ARMAConv] # 2-Layers network: [GCNConv, GCNConv]. Avaiable heads: EdgeConv, ARMAConv, SGConv  
+  types: [EdgeConv] # 2-Layers network: [GCNConv, GCNConv]. Avaiable heads: EdgeConv, ARMAConv, SGConv  
 
 GumbleDistFunc:
   types: [L2_dist] # 2-Layers network: [L2_dist, L2_dist]

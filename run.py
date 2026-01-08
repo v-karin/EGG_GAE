@@ -19,19 +19,19 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 
 
-"""def setup_cuda(cfg: DictConfig):
+def setup_cuda(cfg: DictConfig):
 
     print("DEVICE COUNT: ",torch.cuda.device_count())
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   
     os.environ["CUDA_VISIBLE_DEVICES"] = cfg.trainer.cuda_number
     
-    print("DEVICE COUNT: ",torch.cuda.device_count())"""
+    print("DEVICE COUNT: ",torch.cuda.device_count())
 
 
 
 @hydra.main(config_path='./configs', config_name='defaults')
 def main(cfg: DictConfig):
-    #setup_cuda(cfg)
+    setup_cuda(cfg)
     print(OmegaConf.to_yaml(cfg))
     
     dataloader_cfg = cfg.dataloader
@@ -57,19 +57,21 @@ def main(cfg: DictConfig):
                   scale_type=scale_type
                   )
 
-    """cfg.wadb.logger_name = f'{cfg.dataloader.dataset_name}_{cfg.model.edge_generation_type}_k(noSKIPCON)'
+    cfg.logger.logger_name = f'{cfg.dataloader.dataset_name}_{cfg.model.edge_generation_type}_k(noSKIPCON)'
     
     # # # Configure weight and biases 
     if cfg.trainer.is_logger_enabled:
-        logger = pl_loggers.WandbLogger(
-            project=cfg.wadb.logger_project_name,
-            name=cfg.wadb.logger_name if cfg.wadb.logger_name != 'None' else None, 
-            entity=cfg.wadb.entity,
-            
-            )
+        """logger = pl_loggers.WandbLogger( # change this ###################### WIP WIP WIP #################################
+            project=cfg.logger.project_name,
+            name=cfg.logger.logger_name if cfg.logger.logger_name != 'None' else None,
+            entity=cfg.logger.entity,
+        )"""
+        logger = pl_loggers.CSVLogger(
+            save_dir="csv_logs",
+            name=cfg.logger.logger_name if cfg.logger.logger_name != 'None' else None,
+        )
     else:
-        logger = None"""
-    logger = False
+        logger = False
 
     # --- Callbacks ---
     checkpoint_callback = ModelCheckpoint(
@@ -92,8 +94,8 @@ def main(cfg: DictConfig):
     cfg = config_preprocess(cfg, datamodule)
 
     if cfg.trainer.is_logger_enabled:
-        callbacks = [ValCallback(num_classes=cfg.model.outsize, device="cpu"), #device='cuda:0'),
-                    TestCallback(num_classes=cfg.model.outsize, device="cpu"), #device='cuda:0'), 
+        callbacks = [ValCallback(num_classes=cfg.model.outsize, device='cuda:0'),
+                    TestCallback(num_classes=cfg.model.outsize, device='cuda:0'), 
                     LearningRateMonitor("step"), checkpoint_callback, early_stopping]
     else:
         callbacks = []

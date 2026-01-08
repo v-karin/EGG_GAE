@@ -25,15 +25,16 @@ class EGnet(nn.Module):
         self.cfg = cfg.model
         self.cfgDataloader = cfg.dataloader
         self.module = dynamic_edge_type.get(self.cfg.edge_generation_type)
+        self.device = f"cuda:{cfg.trainer.cuda_number}" if cfg.trainer.accelerator == "gpu" else "cpu"
 
         assert self.module is not None, "self.module is None"
 
         # Build GCNnetwork
         # In size and out size depends on the dataset 
         self.cfg.in_channels =  list(self.cfg.in_channels)
-      
-        assert len(self.cfg.GCNEG_head.types) == len(self.cfg.in_channels), f'{len(self.cfg.GCNEG_head.types)} != {len(self.cfg.in_channels)}'
-        assert len(self.cfg.GumbleDistFunc.types) == len(self.cfg.in_channels), f'{len(self.cfg.GumbleDistFunc.types)} != {len(self.cfg.in_channels)}'
+
+        assert len(self.cfg.GCNEG_head.types) == len(self.cfg.in_channels), f'len({self.cfg.GCNEG_head.types}) != len({self.cfg.in_channels})'
+        assert len(self.cfg.GumbleDistFunc.types) == len(self.cfg.in_channels), f'len({self.cfg.GumbleDistFunc.types}) != len({self.cfg.in_channels})'
         
         if self.cfg.edge_generation_type == 'kEGG_GAE':
             self.cfg.k_degree = list(self.cfg.k_degree) * len(self.cfg.GCNEG_head.types)        
@@ -105,10 +106,8 @@ class EGnet(nn.Module):
         )
 
         # Reconstruct cat variables
-        if cfg.trainer.accelerator == "gpu":
-            self.init_cat_heads(f"cuda:{cfg.trainer.cuda_number}")
-        else:
-            self.init_cat_heads("cpu")
+        self.init_cat_heads(self.device)
+
 
     def init_cat_heads(self, device=None):
         self.cat_heads = torch.nn.ModuleList([

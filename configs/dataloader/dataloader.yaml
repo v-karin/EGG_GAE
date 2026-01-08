@@ -1,7 +1,7 @@
 dataset_type: CustomDataset
 
 
-dataset_name: phishing_website  # Options: SUSY-small, Adult, yeast, abalone, red_wine
+dataset_name: SUSY_small # Options: SUSY_small, Adult, yeast, abalone, red_wine, phishing_website
 
 val_size: 0.3
 
@@ -26,7 +26,7 @@ fly_corrupt: 0.2
 
 # Imputation parameters
 # Move it into separate file
-miss_algo: MCAR
+miss_algo: MNAR
 imputation:
   init_corrupt: 0.2
   fill_val: -999            # FIX THIS VALUES, NEVER CHANGE

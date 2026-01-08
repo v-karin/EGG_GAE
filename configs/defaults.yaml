@@ -4,17 +4,17 @@ defaults:
   - model: kegg_model    # Options: egg_model, kegg_model       
 
 trainer:
-  accelerator: "cpu" #"gpu"
+  accelerator: "gpu" # change to "cpu"
   num_nodes: 1
-  #cuda_number: '0' # disable if no gpu else error
-  is_logger_enabled: false
+  cuda_number: '0' # disable if no gpu else error
+  is_logger_enabled: true
   check_val_every_n_epoch: 9
   log_every_n_steps: 25         
   make_checkpoint: True
   checkpoint_path: {}
   
-wadb:
-  logger_project_name: project_name
+logger:
+  project_name: project_name
   logger_name: logger_name
   entity: entity_name
 

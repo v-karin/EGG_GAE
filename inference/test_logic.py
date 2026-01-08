@@ -1,4 +1,5 @@
 import torch
+from torch.utils.data import DataLoader
 from pytorch_lightning import Callback
 from collections import defaultdict
 import numpy as np
@@ -7,7 +8,7 @@ from inference.ensembler import Ensemble
 from inference.utils import cat_dicts
 
 
-
+import pytorch_lightning
 def rmse_f(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())
 
@@ -30,7 +31,7 @@ class TestCallback(Callback):
         # Create cillector at the beggining of the testidation epoch
         self.create_collector()
 
-    def on_test_batch_end(self, trainer, pl_module, outputs, batch, batch_idx, dataloader_idx):
+    def on_test_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
         test_loss, preds, probs, num_rec, cat_outputs = outputs 
 
         # After each epoch statistics of the batch inserted into stat_collector
@@ -59,7 +60,12 @@ class TestCallback(Callback):
         log_dict = {}
         
         # Get current datasplit
-        mode = trainer.test_dataloaders[0].dataset.split
+        dataloader = trainer.test_dataloaders
+        if not isinstance(dataloader, DataLoader):
+            dataloader = dataloader[0]
+
+        test_dataset = dataloader.dataset
+        mode = test_dataset.split # used to be dataloaders[0] - for some reason "dataloaders" is DataLoader
         if mode == 'train_test':
             mode='train'
 
@@ -72,7 +78,6 @@ class TestCallback(Callback):
         assert pred_ens_collector["min_predictions"]==min_mean_predictions
         
         # Impute dataset
-        test_dataset = trainer.test_dataloaders[0].dataset 
         X_imputed, y = self.impute_dataset(dataset=test_dataset,
                             MASK=test_dataset.MASK_init,
                             imp_ens_collector=imp_ens_collector,
@@ -82,7 +87,7 @@ class TestCallback(Callback):
         for key in pred_ens_collector.keys():
             log_dict[f"{mode}_" + key] = pred_ens_collector[key]
         
-        dataset = trainer.test_dataloaders[0].dataset
+        dataset = test_dataset
         
         X_clean = dataset.features_clean
         num_idx = dataset.num_idx

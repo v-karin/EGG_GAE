@@ -23,6 +23,7 @@ class Network(nn.Module):
         self.cfg, self.args = cfg.model, args #"passes cfg.model"
         self.cfgDataloader = cfg.dataloader 
         self.cfgTrainer = cfg.trainer
+        self.device = f"cuda:{self.cfgTrainer.cuda_number}" if self.cfgTrainer.accelerator == "gpu" else "cpu"
         networks = {'EGnet':EGnet}
  
         # Initialize model
@@ -34,7 +35,7 @@ class Network(nn.Module):
         # Metrics
         self.MetricCalculator = MetricCalculator(
             num_classes=self.cfg.outsize,
-            device=f"cuda:{self.cfgTrainer.cuda_number}" if self.cfgTrainer.accelerator == "gpu" else "cpu"
+            device=self.device
         )
     
         self.init_emb()
@@ -46,7 +47,7 @@ class Network(nn.Module):
         self.CatEmb = [
             torch.nn.Embedding(
                 dim+1, self.cfgDataloader.imputation.cat_emb_dim
-            )#.to(device=f"cuda:{self.cfgTrainer.cuda_number}")
+            ).to(device=self.device)
             for dim in self.cfgDataloader.imputation.cat_dims]
         demoninator = len(self.cfgDataloader.imputation.cat_idx) + len(self.cfgDataloader.imputation.num_idx)
         self.num_reg = len(self.cfgDataloader.imputation.num_idx) / demoninator

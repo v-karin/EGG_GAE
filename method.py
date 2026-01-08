@@ -48,6 +48,8 @@ class LitModel(pl.LightningModule):
         self.model_initialization()
         self.max_f1 = torch.Tensor([-1])
         self.infromation_keeper = {}
+        for name, param in self.model.named_parameters():
+            print(f"{name} - {param.shape}")
 
     def model_initialization(self):
         ModelTraverse(model=self.model, 
