@@ -6,10 +6,10 @@ import numpy as np
 
 from .networks.EGnet import EGnet
 
-from models.edge_generation.EGmodule import EdgeGenerationModule
+from ..models.edge_generation.EGmodule import EdgeGenerationModule
 
-from utils import ModelTraverse 
-from metrics.metrics import MetricCalculator
+from ..utils import ModelTraverse 
+from ..metrics.metrics import MetricCalculator
 
 def cat_dicts(a, b):
     return dict(list(a.items()) + list(b.items()))

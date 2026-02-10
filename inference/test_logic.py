@@ -3,12 +3,10 @@ from torch.utils.data import DataLoader
 from pytorch_lightning import Callback
 from collections import defaultdict
 import numpy as np
-from utils import torch2numpy
-from inference.ensembler import Ensemble
-from inference.utils import cat_dicts
+from ..inference.ensembler import Ensemble
+from ..inference.utils import cat_dicts
 
 
-import pytorch_lightning
 def rmse_f(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())
 

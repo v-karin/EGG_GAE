@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
-from data_prep.utils import scaler, missingness_pipeline
+from ..data_prep.utils import scaler, missingness_pipeline
 from sklearn.model_selection import train_test_split
 
 
