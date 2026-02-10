@@ -16,7 +16,7 @@ def prepare_cat_columns(X, y, cat_idx):
     # Map each col features into [0, .., n_classes-1]
     # Extract number of unique categories of column 
     for i in range(num_features):
-        if cat_idx and i in cat_idx:
+        if cat_idx is not None and i in cat_idx:
             col, n_unique = label_encoder(X[:, i])
             X[:, i] = col
             cat_dims.append(n_unique)
