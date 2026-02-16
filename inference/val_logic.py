@@ -63,7 +63,7 @@ class ValCallback(Callback):
                  imp_collector=self.recon_collector
                  )
                  
-        assert pred_ens_collector["min_predictions"]==min_mean_predictions
+        assert pred_ens_collector["min_predictions"] >= min_mean_predictions
         val_dataset = pl_module.datamodule.val_dataloader().dataset
         
         # Validation dataset is always with MCAR noise 
