@@ -1,8 +1,6 @@
 import torch
 import pytorch_lightning as pl
 from omegaconf import DictConfig
-print(dir())
-print("__name__", __name__)
 from .models.model import Network
 from .models.edge_generation.EGmodule import EdgeGenerationModule
 from .utils import ModelTraverse 
